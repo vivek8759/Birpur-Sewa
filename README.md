@@ -16,8 +16,8 @@ A simple zero-cost web application for a small remote city where:
 
 ## Default Admin Account
 
-- Username: `admin`
-- Password: `admin123`
+- Username: ``
+- Password: ``
 
 ## Run Locally
 
