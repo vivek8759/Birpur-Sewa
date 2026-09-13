@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Welcome, {{ user.full_name }}</h2>
+            <p class="text-muted">Role: {{ user.role|capitalize }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            {% if user.role == 'provider' %}
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">Add Service</button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.role == 'admin' %}
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h4>Users</h4>
+                    <ul class="list-group list-group-flush">
+                        {% for item in users %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ item.full_name }}</strong><br>
+                                        <small>{{ item.username }} | {{ item.role }}</small>
+                                    </div>
+                                    <small>{{ item.city }}</small>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h4>Service Queue</h4>
+                    <ul class="list-group list-group-flush">
+                        {% for item in services %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ item.title }}</strong><br>
+                                        <small>{{ item.category }} | {{ item.provider_name }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="d-block text-muted">{{ item.status }}</small>
+                                        <form method="post" action="{{ url_for('update_service_status', service_id=item.id, status='approved') }}" class="d-inline">
+                                            <button class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('update_service_status', service_id=item.id, status='disabled') }}" class="d-inline">
+                                            <button class="btn btn-sm btn-secondary">Disable</button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('update_service_status', service_id=item.id, status='rejected') }}" class="d-inline">
+                                            <button class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.role == 'provider' %}
+        <div class="card p-3">
+            <h4>Your Services</h4>
+            <div class="row g-3">
+                {% for service in services %}
+                    <div class="col-md-6">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between">
+                                <h5>{{ service.title }}</h5>
+                                <span class="badge bg-{{ 'success' if service.status == 'approved' else 'warning' if service.status == 'pending' else 'secondary' }}">
+                                    {{ service.status }}
+                                </span>
+                            </div>
+                            <p>{{ service.description }}</p>
+                            <div class="small text-muted">
+                                <div>Category: {{ service.category }}</div>
+                                <div>City: {{ service.city }}</div>
+                                {% if service.price %}<div>Price: {{ service.price }}</div>{% endif %}
+                            </div>
+                            <form method="post" action="{{ url_for('delete_service', service_id=service.id) }}" class="mt-3">
+                                <button class="btn btn-outline-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-light border">You have not added any services yet.</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.role == 'customer' %}
+        <div class="card p-3">
+            <h4>Available Services</h4>
+            <div class="row g-3">
+                {% for service in services %}
+                    <div class="col-md-6">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between">
+                                <h5>{{ service.title }}</h5>
+                                <span class="badge bg-primary">{{ service.category }}</span>
+                            </div>
+                            <p>{{ service.description }}</p>
+                            <div class="small text-muted">
+                                <div>Provider: {{ service.provider_name }}</div>
+                                <div>Phone: {{ service.provider_phone or 'Not provided' }}</div>
+                                <div>City: {{ service.provider_city }}</div>
+                                {% if service.price %}<div>Price: {{ service.price }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-light border">No services are available right now.</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.role == 'provider' %}
+        <div class="modal fade" id="addServiceModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Service</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{{ url_for('add_service') }}">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Service Title</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <input type="text" name="category" class="form-control" placeholder="delivery, carpenter, transport..." required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Price / Rate</label>
+                                <input type="text" name="price" class="form-control" placeholder="Optional">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit Service</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

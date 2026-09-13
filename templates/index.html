@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="hero p-5 mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <p class="text-uppercase small fw-bold mb-2 text-light-emphasis">Local marketplace</p>
+                <h1 class="display-5 fw-bold mb-3">Find trusted services near you</h1>
+                <p class="lead mb-4 text-light">Discover reliable delivery, repair, transport, carpentry, and everyday help in your remote city.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-light btn-lg" href="{{ url_for('register') }}">Join as Customer</a>
+                    <a class="btn btn-outline-light btn-lg" href="{{ url_for('register') }}">Become a Provider</a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="bg-white text-dark rounded-4 p-4 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">Marketplace</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                    <h3 class="mb-1">0 Cost</h3>
+                    <p class="mb-0 text-muted">Simple setup, fast listings, local trust</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search services or providers">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category_name in categories %}
+                        <option value="{{ category_name }}" {% if category == category_name %}selected{% endif %}>{{ category_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">City</label>
+                <input type="text" name="city" value="{{ city }}" class="form-control" placeholder="e.g. Tinsukia">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Available Services</h2>
+        <span class="text-muted small">{{ services | length }} listings</span>
+    </div>
+
+    <div class="row g-3">
+        {% for service in services %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary-subtle text-primary-emphasis">{{ service.category }}</span>
+                        {% if service.price %}
+                            <span class="fw-bold text-success">{{ service.price }}</span>
+                        {% endif %}
+                    </div>
+                    <h4 class="mt-2 mb-2">{{ service.title }}</h4>
+                    <p class="text-muted mb-3 small">{{ service.description[:120] }}{% if service.description|length > 120 %}...{% endif %}</p>
+                    <div class="small text-secondary">
+                        <div><strong>Provider:</strong> {{ service.provider_name }}</div>
+                        <div><strong>City:</strong> {{ service.provider_city }}</div>
+                        <div><strong>Phone:</strong> {{ service.provider_phone or 'Not provided' }}</div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ url_for('service_detail', service_id=service.id) }}" class="btn btn-outline-primary btn-sm">View details</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-light border">No approved services match your filters yet. Try another search or check back soon.</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

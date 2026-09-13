@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <span class="badge bg-primary fs-6">{{ service.category }}</span>
+                    {% if service.price %}
+                        <span class="badge bg-success fs-6">{{ service.price }}</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="h2">{{ service.title }}</h1>
+                <p class="text-muted">{{ service.city }}</p>
+                <p class="lead">{{ service.description }}</p>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <div class="border rounded p-3">
+                            <h5>Provider Details</h5>
+                            <p class="mb-1"><strong>Name:</strong> {{ service.provider_name }}</p>
+                            <p class="mb-1"><strong>City:</strong> {{ service.provider_city }}</p>
+                            <p class="mb-0"><strong>Phone:</strong> {{ service.provider_phone or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <h5>Listing Info</h5>
+                            <p class="mb-1"><strong>Category:</strong> {{ service.category }}</p>
+                            <p class="mb-1"><strong>Rate:</strong> {{ service.price or 'Negotiable' }}</p>
+                            <p class="mb-0"><strong>Status:</strong> Approved</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a class="btn btn-primary" href="{{ url_for('index') }}">Back to Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
